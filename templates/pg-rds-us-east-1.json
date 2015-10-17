@@ -1,0 +1,351 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Created postgres RDS instance",
+    "Mappings": {
+        "envMap": {
+            "dev": {
+                "charId": "d",
+                "dbSubnetGroup": "dev-dbsubnetgroup-us-east-1-stack-dbsg-145mk9o17ciz2",
+                "vpcId": "vpc-e3e82a86"
+            },
+            "preprod": {
+                "charId": "e",
+                "dbSubnetGroup": "preprod-dbsubnetgroup-us-east-1-stack-dbsg-1wa6z9m13tdll",
+                "vpcId": "vpc-1e4b8f7b"
+            },
+            "prod": {
+                "charId": "p",
+                "dbSubnetGroup": "prod-dbsubnetgroup-us-east-1-stack-dbsg-1odf61fg3w3y2",
+                "vpcId": "vpc-1e4b8f7b"
+            },
+            "stage": {
+                "charId": "s",
+                "dbSubnetGroup": "stage-dbsubnetgroup-us-east-1-stack-dbsubnetgroup-3p49q85409vr",
+                "vpcId": "vpc-1e4b8f7b"
+            },
+            "test": {
+                "charId": "t",
+                "dbSubnetGroup": "test-dbsubnetgroup-us-east-1-stack-dbsg-1w4dhqn78ispx",
+                "vpcId": "vpc-e3e82a86"
+            }
+        }
+    },
+    "Outputs": {
+        "Endpoint": {
+            "Description": "Endpoint of the RDS instance",
+            "Value": {
+                "Fn::GetAtt": [
+                    "rdsInstance",
+                    "Endpoint.Address"
+                ]
+            }
+        },
+        "Port": {
+            "Description": "Port being used by the RDS instance",
+            "Value": {
+                "Fn::GetAtt": [
+                    "rdsInstance",
+                    "Endpoint.Port"
+                ]
+            }
+        },
+        "SecurityGroupId": {
+            "Description": "Security group of the RDS instance",
+            "Value": {
+                "Fn::GetAtt": [
+                    "dbAccessGroup",
+                    "GroupId"
+                ]
+            }
+        }
+    },
+    "Parameters": {
+        "Application": {
+            "AllowedPattern": "[a-zA-Z0-9_@./#&+-]*",
+            "Description": "SPS Application (ex: Minivan, BPEL, DocEngine, etc.)",
+            "MaxLength": "20",
+            "MinLength": "1",
+            "Type": "String"
+        },
+        "Environment": {
+            "AllowedValues": [
+                "dev",
+                "test",
+                "stage",
+                "preprod",
+                "prod"
+            ],
+            "Default": "dev",
+            "Description": "Environment for RDS",
+            "Type": "String"
+        },
+        "allocatedStorage": {
+            "Description": "Storage needed in GB",
+            "Type": "Number"
+        },
+        "applicationShortName": {
+            "AllowedPattern": "[a-zA-Z0-9_@./#&+-]*",
+            "Description": "Short version of Application limited to 7 characters",
+            "MaxLength": "7",
+            "MinLength": "1",
+            "Type": "String"
+        },
+        "counter": {
+            "Description": "Goal is to launch multiple database copies, this is a numeric identifier",
+            "Type": "Number"
+        },
+        "instanceClass": {
+            "AllowedValues": [
+                "db.m3.medium",
+                "db.m3.large",
+                "db.m3.xlarge",
+                "db.m3.2xlarge",
+                "db.r3.large",
+                "db.r3.xlarge",
+                "db.r3.2xlarge"
+            ],
+            "Default": "db.m3.medium",
+            "Description": "Instance Class determined CPU, memory, and network performance",
+            "Type": "String"
+        },
+        "masterPass": {
+            "Description": "Password for spscdbmaster user",
+            "NoEcho": true,
+            "Type": "String"
+        },
+        "storageEncrypted": {
+            "Description": "Indicates whether the database instance is encrypted.",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "dbAccessGroup": {
+            "Properties": {
+                "GroupDescription": {
+                    "Fn::Join": [
+                        " ",
+                        [
+                            {
+                                "Ref": "Environment"
+                            },
+                            {
+                                "Ref": "Application"
+                            },
+                            {
+                                "Ref": "counter"
+                            },
+                            "pg",
+                            "access",
+                            "group"
+                        ]
+                    ]
+                },
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "-",
+                                [
+                                    {
+                                        "Ref": "Environment"
+                                    },
+                                    {
+                                        "Ref": "Application"
+                                    },
+                                    {
+                                        "Ref": "counter"
+                                    },
+                                    "pg",
+                                    "access",
+                                    "group"
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "VpcId": {
+                    "Fn::FindInMap": [
+                        "envMap",
+                        {
+                            "Ref": "Environment"
+                        },
+                        "vpcId"
+                    ]
+                }
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "dbSecurityGroup": {
+            "Properties": {
+                "GroupDescription": {
+                    "Fn::Join": [
+                        " ",
+                        [
+                            {
+                                "Ref": "Environment"
+                            },
+                            {
+                                "Ref": "Application"
+                            },
+                            {
+                                "Ref": "counter"
+                            },
+                            "pg",
+                            "security",
+                            "group"
+                        ]
+                    ]
+                },
+                "SecurityGroupIngress": [
+                    {
+                        "FromPort": 5432,
+                        "IpProtocol": "tcp",
+                        "SourceSecurityGroupId": {
+                            "Fn::GetAtt": [
+                                "dbAccessGroup",
+                                "GroupId"
+                            ]
+                        },
+                        "ToPort": 5432
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "-",
+                                [
+                                    {
+                                        "Ref": "Environment"
+                                    },
+                                    {
+                                        "Ref": "Application"
+                                    },
+                                    {
+                                        "Ref": "counter"
+                                    },
+                                    "pg",
+                                    "security",
+                                    "group"
+                                ]
+                            ]
+                        }
+                    }
+                ],
+                "VpcId": {
+                    "Fn::FindInMap": [
+                        "envMap",
+                        {
+                            "Ref": "Environment"
+                        },
+                        "vpcId"
+                    ]
+                }
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "dnsEntry": {
+            "Properties": {
+                "HostedZoneName": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "sps",
+                            {
+                                "Ref": "Environment"
+                            },
+                            ".in."
+                        ]
+                    ]
+                },
+                "Name": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            {
+                                "Ref": "applicationShortName"
+                            },
+                            ".db.svc.sps",
+                            {
+                                "Ref": "Environment"
+                            },
+                            ".in."
+                        ]
+                    ]
+                },
+                "ResourceRecords": [
+                    {
+                        "Fn::GetAtt": [
+                            "rdsInstance",
+                            "Endpoint.Address"
+                        ]
+                    }
+                ],
+                "TTL": "60",
+                "Type": "CNAME"
+            },
+            "Type": "AWS::Route53::RecordSet"
+        },
+        "rdsInstance": {
+            "Properties": {
+                "AllocatedStorage": {
+                    "Ref": "allocatedStorage"
+                },
+                "AllowMajorVersionUpgrade": "false",
+                "AutoMinorVersionUpgrade": "true",
+                "BackupRetentionPeriod": 16,
+                "DBInstanceClass": {
+                    "Ref": "instanceClass"
+                },
+                "DBInstanceIdentifier": {
+                    "Fn::Join": [
+                        "-",
+                        [
+                            {
+                                "Ref": "Environment"
+                            },
+                            {
+                                "Ref": "Application"
+                            },
+                            {
+                                "Ref": "counter"
+                            },
+                            "pgrds"
+                        ]
+                    ]
+                },
+                "DBSubnetGroupName": {
+                    "Fn::FindInMap": [
+                        "envMap",
+                        {
+                            "Ref": "Environment"
+                        },
+                        "dbSubnetGroup"
+                    ]
+                },
+                "Engine": "postgres",
+                "EngineVersion": "9.4.4",
+                "LicenseModel": "postgresql-license",
+                "MasterUserPassword": {
+                    "Ref": "masterPass"
+                },
+                "MasterUsername": "spscdbmaster",
+                "MultiAZ": "true",
+                "Port": 5432,
+                "PubliclyAccessible": "false",
+                "StorageEncrypted": {
+                    "Ref": "storageEncrypted"
+                },
+                "StorageType": "gp2",
+                "VPCSecurityGroups": [
+                    {
+                        "Ref": "dbSecurityGroup"
+                    }
+                ]
+            },
+            "Type": "AWS::RDS::DBInstance"
+        }
+    }
+}

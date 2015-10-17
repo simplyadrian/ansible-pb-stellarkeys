@@ -1,0 +1,10 @@
+---
+- hosts: all
+  pre_tasks:
+    - include_vars: "{{ item }}"
+      with_first_found: ["vars/{{environ}}.yml","vars/main.yml"]
+
+  roles:
+  - role: apache 
+  - role: php
+  - role: simpleinvoice

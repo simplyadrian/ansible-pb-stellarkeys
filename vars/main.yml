@@ -1,0 +1,18 @@
+---
+# vars for ansible-pb-stellar
+apache_listen_port: 8080
+apache_remove_default_vhost: true
+apache_vhosts:
+  - {servername: "local.dev", documentroot: "/var/www/html"}
+
+php_memory_limit: "128M"
+php_max_execution_time: "90"
+php_upload_max_filesize: "256M"
+php_packages:
+  - php5
+  - php5-cli
+  - php5-common
+  - php5-dev
+  - php5-gd
+  - php5-apcu
+  - php5-xsl
