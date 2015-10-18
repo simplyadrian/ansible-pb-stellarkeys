@@ -154,7 +154,7 @@
 
   pre_tasks:
     - cloudformation_lookup:
-      stack: "simpleinvoice-{{ target_counter }}-mysql-rds-stack"
+        stack: "simpleinvoice-{{ target_counter }}-mysql-rds-stack"
       register: mysqlrds_stack
     - set_fact:
         simpleinvoice_aws_dbhost:
