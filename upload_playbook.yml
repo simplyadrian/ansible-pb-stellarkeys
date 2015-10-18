@@ -2,7 +2,7 @@
 - hosts: localhost
   vars:
     github_username: "simplyadrian"
-    github_repo: "ansible-pb-stellar"
+    github_repo: "ansible-pb-stellarkeys"
     artifact_version: 0.0.1 # fake this shit for now
   tasks:
 
@@ -30,4 +30,4 @@
     command: tar -cvzf ../{{ github_repo }}-{{ artifact_version }}.tgz . chdir=./build/bundle creates=../{{ github_repo }}-{{ artifact_version }}.tgz
 
   - name: upload the artifact to s3 ; versioning on we dont give af 
-    s3: mode=put bucket=sps-build-deploy object=ansible/{{ github_repo }}-{{ artifact_version }}.tgz src=./build/{{ github_repo }}-{{ artifact_version }}.tgz
+    s3: mode=put bucket=stellar-build-deploy object=ansible/{{ github_repo }}-{{ artifact_version }}.tgz src=./build/{{ github_repo }}-{{ artifact_version }}.tgz
