@@ -4,7 +4,30 @@
     - include_vars: "{{ item }}"
       with_first_found: ["vars/{{environ}}.yml","vars/main.yml"]
 
+    - name: install module prerequisites
+      apt: name={{ item }} state=latest
+      with_items:
+        - unzip
+
   roles:
+  - role: credstash
+    secrets: "{{ credstash_secrets }}"
   - role: apache 
   - role: php
   - role: simpleinvoice
+
+  post_tasks:
+
+  - name: wait for apache port
+    wait_for: port=8080 delay=10
+
+  - name: check that simpleinvoice is available
+    uri:
+      url: "http://localhost:8080/simpleinvoices"
+      method: GET
+      return_content: yes
+      status_code: 200
+      timeout: 300
+      async: 300
+      poll: 10
+    register: http_verify_out

@@ -16,8 +16,8 @@ python-dev \
 build-essential
 
 ## run tests
-RUN ansible-playbook -vvvv -i "[test] localhost," -c local deploy.yml #&&\
-    #ansible-playbook -i "[test] localhost," -c local deploy.yml 2>/dev/null | grep -q 'changed=0.*failed=0' &&\
+RUN ansible-playbook -vvvv -i "[test] localhost," -c local -e "environ=dev" deploy.yml #&&\
+    #ansible-playbook -i "[test] localhost," -c local -e "environ=dev" deploy.yml 2>/dev/null | grep -q 'changed=0.*failed=0' &&\
     #(echo 'Idempotence test: \033[0;32mpass\033[0m' && exit 0) ||\
     #(echo 'Idempotence test: \033[0;31mfail\033[0m' && exit 1)
 

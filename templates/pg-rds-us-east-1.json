@@ -3,30 +3,10 @@
     "Description": "Created postgres RDS instance",
     "Mappings": {
         "envMap": {
-            "dev": {
-                "charId": "d",
-                "dbSubnetGroup": "dev-dbsubnetgroup-us-east-1-stack-dbsg-145mk9o17ciz2",
-                "vpcId": "vpc-e3e82a86"
-            },
-            "preprod": {
-                "charId": "e",
-                "dbSubnetGroup": "preprod-dbsubnetgroup-us-east-1-stack-dbsg-1wa6z9m13tdll",
-                "vpcId": "vpc-1e4b8f7b"
-            },
             "prod": {
                 "charId": "p",
-                "dbSubnetGroup": "prod-dbsubnetgroup-us-east-1-stack-dbsg-1odf61fg3w3y2",
-                "vpcId": "vpc-1e4b8f7b"
-            },
-            "stage": {
-                "charId": "s",
-                "dbSubnetGroup": "stage-dbsubnetgroup-us-east-1-stack-dbsubnetgroup-3p49q85409vr",
-                "vpcId": "vpc-1e4b8f7b"
-            },
-            "test": {
-                "charId": "t",
-                "dbSubnetGroup": "test-dbsubnetgroup-us-east-1-stack-dbsg-1w4dhqn78ispx",
-                "vpcId": "vpc-e3e82a86"
+                "dbSubnetGroup": "prod-dbsubnetgroup-us-east-1-stack-dbsg",
+                "vpcId": "vpc-927ea1f6"
             }
         }
     },
@@ -62,20 +42,16 @@
     "Parameters": {
         "Application": {
             "AllowedPattern": "[a-zA-Z0-9_@./#&+-]*",
-            "Description": "SPS Application (ex: Minivan, BPEL, DocEngine, etc.)",
+            "Description": "Stellar Application (ex: Invoices, Billing etc.)",
             "MaxLength": "20",
             "MinLength": "1",
             "Type": "String"
         },
         "Environment": {
             "AllowedValues": [
-                "dev",
-                "test",
-                "stage",
-                "preprod",
                 "prod"
             ],
-            "Default": "dev",
+            "Default": "prod",
             "Description": "Environment for RDS",
             "Type": "String"
         },
@@ -109,7 +85,7 @@
             "Type": "String"
         },
         "masterPass": {
-            "Description": "Password for spscdbmaster user",
+            "Description": "Password for dbmaster user",
             "NoEcho": true,
             "Type": "String"
         },
@@ -134,7 +110,7 @@
                             {
                                 "Ref": "counter"
                             },
-                            "pg",
+                            "mysql",
                             "access",
                             "group"
                         ]
@@ -156,7 +132,7 @@
                                     {
                                         "Ref": "counter"
                                     },
-                                    "pg",
+                                    "mysql",
                                     "access",
                                     "group"
                                 ]
@@ -191,7 +167,7 @@
                             {
                                 "Ref": "counter"
                             },
-                            "pg",
+                            "mysql",
                             "security",
                             "group"
                         ]
@@ -199,7 +175,7 @@
                 },
                 "SecurityGroupIngress": [
                     {
-                        "FromPort": 5432,
+                        "FromPort": 3306,
                         "IpProtocol": "tcp",
                         "SourceSecurityGroupId": {
                             "Fn::GetAtt": [
@@ -207,7 +183,7 @@
                                 "GroupId"
                             ]
                         },
-                        "ToPort": 5432
+                        "ToPort": 3306
                     }
                 ],
                 "Tags": [
@@ -226,7 +202,7 @@
                                     {
                                         "Ref": "counter"
                                     },
-                                    "pg",
+                                    "mysql",
                                     "security",
                                     "group"
                                 ]
@@ -252,11 +228,11 @@
                     "Fn::Join": [
                         "",
                         [
-                            "sps",
+                            "stellarkeysandremotes",
                             {
                                 "Ref": "Environment"
                             },
-                            ".in."
+                            ".com."
                         ]
                     ]
                 },
@@ -267,11 +243,11 @@
                             {
                                 "Ref": "applicationShortName"
                             },
-                            ".db.svc.sps",
+                            ".db.stellarkeysandremotes",
                             {
                                 "Ref": "Environment"
                             },
-                            ".in."
+                            ".com."
                         ]
                     ]
                 },
@@ -312,7 +288,7 @@
                             {
                                 "Ref": "counter"
                             },
-                            "pgrds"
+                            "mysqlrds"
                         ]
                     ]
                 },
@@ -325,15 +301,15 @@
                         "dbSubnetGroup"
                     ]
                 },
-                "Engine": "postgres",
-                "EngineVersion": "9.4.4",
-                "LicenseModel": "postgresql-license",
+                "Engine": "mysql",
+                "EngineVersion": "5.6.23",
+                "LicenseModel": "general-public-license",
                 "MasterUserPassword": {
                     "Ref": "masterPass"
                 },
-                "MasterUsername": "spscdbmaster",
+                "MasterUsername": "simple_user",
                 "MultiAZ": "true",
-                "Port": 5432,
+                "Port": 3306,
                 "PubliclyAccessible": "false",
                 "StorageEncrypted": {
                     "Ref": "storageEncrypted"

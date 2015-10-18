@@ -3,70 +3,69 @@
 # access secrets
 - hosts: localhost
   vars:
-    credstash_table: "{% if environ in ['stage', 'prod'] %}{{ environ }}-{% endif %}credential-store"
+    credstash_table: "credential-store"
     credstash_secrets: 
       - table: "{{credstash_table}}"
-        secret: "{{ environ }}.pmp_db.password"
-        fact: "passwordmanagerpro_aws_dbpass"
+        secret: "simple_db.password"
+        fact: "simple_aws_dbpass"
         context: "env={{environ}}"
   roles:
   - role: credstash
     secrets: "{{credstash_secrets}}"
 
   post_tasks:
-    - debug: msg="{{passwordmanagerpro_aws_dbpass}}"
+    - debug: msg="{{simple_aws_dbpass}}"
 
 # rds stack
 - hosts: localhost
   gather_facts: false
   tasks:
     - include_vars: vars/default.yml
-    - name: Launch Postgres RDS
+    - name: Launch MySQL RDS
       cloudformation:
-        stack_name: "{{ environ }}-{% if corptech|bool == True %}corp-passwordmanager{% else %}passwordmanager{% endif %}-{{ target_counter }}-pg-rds-stack"
+        stack_name: "simpleinvoice-{{ target_counter }}-mysql-rds-stack"
         state: present
         region: us-east-1
         template: templates/pg-rds-us-east-1.json
         template_parameters:
           Environment: "{{ environ }}"
-          Application: "{% if corptech|bool == True %}corp-passwordmanager{% else %}passwordmanager{% endif %}"
-          applicationShortName: "{% if corptech|bool == True %}corppmp{% else %}pmp{% endif %}"
+          Application: "simpleinvoice"
+          applicationShortName: "si"
           counter: "{{ target_counter }}"
-          masterPass: "{{ passwordmanagerpro_aws_dbpass }}"
+          masterPass: "{{ simple_aws_dbpass }}"
           instanceClass: "{{ instance_class }}"
           allocatedStorage: "{{ alloc_storage }}"
           storageEncrypted: "{{ true|bool }}"
         tags:
-          "sps:env": "{{ environ }}"
-          "sps:unit": techops
-          "sps:product": "{% if corptech|bool == True %}corp-passwordmanager{% else %}passwordmanager{% endif %}"
-          "sps:subproduct": disaster-recovery
-          "sps:owner": "dba@spscommerce.com"
-          "sps:hours_of_operation": "0000-2359" 
+          "stellar:env": "{{ environ }}"
+          "stellar:unit": techops
+          "stellar:product": "simpleinvoice"
+          "stellar:owner": "simplyadrian@gmail.com"
+          "stellar:hours_of_operation": "0000-2359"
 
 # long lived load balancer stack
 - hosts: localhost
   gather_facts: false
   vars:
-    frontelb_health_check_target: TCP:7272
-    frontelb_zone_name: "{% if environ == 'prod' %}sps{{ environ }}.in.{% else %}sps{{ environ }}.in.{% endif %}"
-    frontelb_dns_name: "{% if corptech|bool == True %}corp.pmp.svc.sps{{ environ }}.in{% else %}pmp.svc.sps{{ environ }}.in{% endif%}"
-    frontelb_stack_name: "{{environ}}-{% if corptech|bool == True %}corp-pmp-elb{% else %}pmp-elb{% endif %}{% if stack_num is defined %}-{{stack_num|default(1)}}{% endif %}"
-    frontelb_scheme: internal
+    frontelb_health_check_target: TCP:8080
+    frontelb_zone_name: "stellarkeysandremotes.com"
+    frontelb_dns_name: "invoice.stellarkeysandremotes.com"
+    frontelb_stack_name: "simpleinvoice-elb{% if stack_num is defined %}-{{stack_num|default(1)}}{% endif %}"
+    frontelb_scheme: external
     frontelb_listeners:
-        - instancePort: 7272 
+        - instancePort: 8080
           instanceProtocol: "https"
           port: 443
           protocol: "https"
           allowed:
             - 0.0.0.0/0
-    sps_tags:
-      'sps:product': passwordmanagerpro
-      'sps:unit': techops
-      'sps:env': "{{environ}}"
-      'sps:owner': cloudops@spscommerce.com
-      'sps:hours_of_operation': "0000-2359"
-      'Name': "{{environ}}-pmp-server"
+    tags:
+      'stellar:product': "simpleinvoice"
+      'stellar:env': "{{ environ }}"
+      'stellar:unit': techops
+      'stellar:owner': "simplyadrian@gmail.com"
+      'stellar:hours_of_operation': "0000-2359"
+      'Name': "stellar-server"
   roles:
   - frontelb
 
@@ -74,15 +73,15 @@
 - hosts: localhost
   gather_facts: false
   vars:
-    credstash_keys: ' { "dynamodb:LeadingKeys": ["{{environ}}.pmp.*", "{{environ}}.pmp_db.*"] }'
+    credstash_keys: ' { "dynamodb:LeadingKeys": ["simple.*", "{simple_db.*"] }'
                     #^ this space is significant, see https://github.com/ansible/ansible/issues/11963
-    s3_prefix: "{{environ}}/pmp"
-    s3_arn: "arn:aws:s3:::sps-build-deploy"
-    playbook_version: "{{ lookup('env','PMP_PB_VERSION') }}"
-    load_balancer_stack: "{{environ}}-{% if corptech|bool ==True %}corp-pmp-elb{% else %}pmp-elb{% endif %}"
-    stack_name: "{{ environ }}-{% if corptech|bool == True %}corp-pmp-server{% else %}pmp-server{% endif %}-{{ playbook_version|regex_replace('\\.', '-' ) }}{% if app_stack_num is defined %}-s{{ app_stack_num }}{% endif %}"
+    s3_prefix: "{{environ}}/simple"
+    s3_arn: "arn:aws:s3:::stellar-build-deploy"
+    playbook_version: "{{ lookup('env','STELLAR_PB_VERSION') }}"
+    load_balancer_stack: "simpleinvoice-elb"
+    stack_name: "simple-server-{{ playbook_version|regex_replace('\\.', '-' ) }}{% if app_stack_num is defined %}-s{{ app_stack_num }}{% endif %}"
     group: app-1
-    ansible_archive: "https://sps-build-deploy.s3.amazonaws.com/ansible/ansible-pb-pmpserver-{{ playbook_version }}.tgz"
+    ansible_archive: "https://stellar-build-deploy.s3.amazonaws.com/ansible/ansible-pb-stellar-{{ playbook_version }}.tgz"
     image_type: "m3.medium"
     image_group: ubuntu14
     instance_volume:
@@ -90,7 +89,7 @@
        size: '50'
        type: 'gp2'
        delete_on_term: true
-    keypair_name: "{{environ}}-pmpserver"
+    keypair_name: "prod-pmpserver"
     stack_wait_condition_timeout: 3600
     ansible_playbooks: deploy.yml
     ansible_extra_vars: |
@@ -98,22 +97,21 @@
       playbook_version: "{{ playbook_version }}"
       environ: "{{ environ }}"
       settings_secret_version: "{{ lookup('env', 'PMP_SECRET_VERSION') }}"
-      passwordmanagerpro_aws_install: true
-      passwordmanagerpro_aws_dbhost: "{{ pgrds_stack.outputs.Endpoint }}"
-      passwordmanagerpro_aws_dbport: "{{ pgrds_stack.outputs.Port }}"  
+      simpleinvoice_local_install: false
+      simpleinvoice_aws_dbhost: "{{ mysqlrds_stack.outputs.Endpoint }}"
+      simpleinvoice_aws_dbport: "{{ mysqlrds_stack.outputs.Port }}"
     ansible_inventory: |
-      [pmpserver]
+      [simpleinvoiceserver]
       localhost ansible_connection=local
       [pmpserver:vars]
       environ="{{environ}}"
       playbook_version="{{playbook_version}}"
     stack_instance_tags:
-      "sps:owner": "cloudops@spscommerce.com"
-      "sps:unit": "techops"
-      "sps:env": "{{ environ }}"
-      "sps:hours_of_operation": "0000-2359"
-      "sps:product": "passwordmanagerpro"
-      "Name": "{{environ}}-{% if corptech|bool == True %}corp-pmp-server{% else %}pmp-server{% endif %}"
+      "stellar:owner": "simplyadrian@gmail.com"
+      "stellar:unit": "techops"
+      "stellar:hours_of_operation": "0000-2359"
+      "stellar:product": "simpleinvoice"
+      "Name": "simpleinvoice-server"
     instance_security_groups: "{{ standard_security_groups }}"
     instance_policies:
       s3:
@@ -137,7 +135,7 @@
             actions:
               - "s3:PutObject"
             resources:
-              - "arn:aws:s3:::sps-build-deploy/*"
+              - "arn:aws:s3:::stellar-build-deploy/*"
       kms_secrets_ddb:
         statements:
           - effect: Allow
@@ -156,16 +154,16 @@
 
   pre_tasks:
     - cloudformation_lookup:
-        stack: "{{ environ }}-{% if corptech|bool == True %}corp-passwordmanager{% else %}passwordmanager{% endif %}-{{ target_counter }}-pg-rds-stack"
-      register: pgrds_stack
+      stack: "simpleinvoice-{{ target_counter }}-mysql-rds-stack"
+      register: mysqlrds_stack
     - set_fact:
-        passwordmanagerpro_aws_dbhost:
-          - "{{ pgrds_stack.outputs.Endpoint }}"
-        passwordmanagerpro_aws_dbport:
-          - "{{ pgrds_stack.outputs.Port }}" 
+        simpleinvoice_aws_dbhost:
+          - "{{ mysqlrds_stack.outputs.Endpoint }}"
+        simpleinvoice_aws_dbport:
+          - "{{ mysqlrds_stack.outputs.Port }}"
         instance_security_groups:
           - "{{ standard_security_groups | join(' ') }}"
-          - "{{ pgrds_stack.outputs.SecurityGroupId }}"
+          - "{{ mysqlrds_stack.outputs.SecurityGroupId }}"
 
   roles:
     - stack

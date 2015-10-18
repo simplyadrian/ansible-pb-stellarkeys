@@ -1,0 +1,33 @@
+---
+- hosts: localhost
+  vars:
+    github_username: "simplyadrian"
+    github_repo: "ansible-pb-stellar"
+    artifact_version: 0.0.1 # fake this shit for now
+  tasks:
+
+# bundle up something like the sdk
+  - name: create build directory
+    file: path=./build state=directory
+
+  - name: clone the repo  
+    git: 
+      repo: "ssh://git@github.com/{{ github_username }}/{{ github_repo }}.git"
+      dest: ./build/bundle
+
+  - name: playbook requirements
+    stat: path=./build/bundle/requirements.yml
+    register: pb_req
+
+  - name: resolve playbook dependencies into build context
+    command: ansible-galaxy install -r requirements.yml -p ./roles/ chdir=./build/bundle creates=roles 
+    when: pb_req.stat.exists
+
+  - name: create stub inventory directory
+    file: path=./build/bundle/inventory state=directory
+
+  - name: create the artifact
+    command: tar -cvzf ../{{ github_repo }}-{{ artifact_version }}.tgz . chdir=./build/bundle creates=../{{ github_repo }}-{{ artifact_version }}.tgz
+
+  - name: upload the artifact to s3 ; versioning on we dont give af 
+    s3: mode=put bucket=sps-build-deploy object=ansible/{{ github_repo }}-{{ artifact_version }}.tgz src=./build/{{ github_repo }}-{{ artifact_version }}.tgz
