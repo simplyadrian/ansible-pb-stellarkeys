@@ -33,3 +33,8 @@ php_packages:
   - php5-apcu
   - php5-xsl
   - php5-mysql
+
+# RDS vars
+target_counter: 1
+instance_class: db.m3.medium
+alloc_storage: 10

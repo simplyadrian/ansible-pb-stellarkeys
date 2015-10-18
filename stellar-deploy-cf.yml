@@ -20,7 +20,7 @@
 - hosts: localhost
   gather_facts: false
   tasks:
-    - include_vars: vars/default.yml
+    - include_vars: vars/main.yml
     - name: Launch MySQL RDS
       cloudformation:
         stack_name: "simpleinvoice-{{ target_counter }}-mysql-rds-stack"
