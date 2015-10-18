@@ -3,5 +3,4 @@
 build/
 roles/
 Dockerfile
-inventory/
 tmp/

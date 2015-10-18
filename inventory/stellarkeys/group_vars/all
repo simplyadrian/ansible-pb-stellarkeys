@@ -1,0 +1,33 @@
+---
+frontelb_logging_bucket: stellar-logging
+frontelb_logging_prefix: "elb/{{environ}}/{{frontelb_dns_name | regex_replace('\\.$', '')}}"
+frontelb_logging_enabled: true
+nameserver: 172.18.132.1
+account: stellarkeys
+aws_account: stellarkeys
+aws_account_number: 063101068014
+standard_security_groups: [ sg-bcb442da ]
+regions:
+  us-east-1:
+    aws_amis:
+      ubuntu14: ami-d05e75b8 
+    vpc: vpc-927ea1f6
+    region: us-east-1
+    vpc_environment_names:
+    - prod
+    vpc_environments:
+      prod:
+        credstash_key_id: 8a86b8ef-207d-4d6c-93ec-580edd63e770 
+        credstash_key: credstash
+        credstash_table: credential-store
+        app-1:
+          subnets:
+          - subnet-2a332a5d
+          - subnet-2572a718
+          - subnet-e42516bd
+          - subnet-2f486804
+          azs:
+          - us-east-1b
+          - us-east-1e
+          - us-east-1c
+          - us-east-1a
