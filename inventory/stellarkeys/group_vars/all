@@ -2,7 +2,7 @@
 frontelb_logging_bucket: stellar-logging
 frontelb_logging_prefix: "elb/{{environ}}/{{frontelb_dns_name | regex_replace('\\.$', '')}}"
 frontelb_logging_enabled: true
-nameserver: ns-253.awsdns-31.com 
+nameserver: ns-0.awsdns-00.com 
 account: stellarkeys
 aws_account: stellarkeys
 aws_account_number: 063101068014
