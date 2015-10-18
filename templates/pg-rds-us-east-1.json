@@ -228,11 +228,7 @@
                     "Fn::Join": [
                         "",
                         [
-                            "stellarkeysandremotes",
-                            {
-                                "Ref": "Environment"
-                            },
-                            ".com."
+                            "stellarkeysandremotes.com"
                         ]
                     ]
                 },
