@@ -243,11 +243,7 @@
                             {
                                 "Ref": "applicationShortName"
                             },
-                            ".db.stellarkeysandremotes",
-                            {
-                                "Ref": "Environment"
-                            },
-                            ".com."
+                            ".db.stellarkeysandremotes.com."
                         ]
                     ]
                 },
