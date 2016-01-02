@@ -48,8 +48,8 @@
   gather_facts: false
   vars:
     frontelb_health_check_target: TCP:8080
-    frontelb_zone_name: "stellarkeysandremotes.com"
-    frontelb_dns_name: "invoice.stellarkeysandremotes.com"
+    frontelb_zone_name: "stellarkeys.io"
+    frontelb_dns_name: "invoice.stellarkeys.io"
     frontelb_stack_name: "simpleinvoice-elb{% if stack_num is defined %}-{{stack_num|default(1)}}{% endif %}"
     frontelb_scheme: external
     frontelb_listeners:

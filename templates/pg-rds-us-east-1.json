@@ -228,7 +228,7 @@
                     "Fn::Join": [
                         "",
                         [
-                            "stellarkeysandremotes.com"
+                            "stellarkeys.io."
                         ]
                     ]
                 },
@@ -239,7 +239,7 @@
                             {
                                 "Ref": "applicationShortName"
                             },
-                            ".db.stellarkeysandremotes.com."
+                            ".db.stellarkeys.io."
                         ]
                     ]
                 },

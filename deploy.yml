@@ -5,9 +5,13 @@
       with_first_found: ["vars/{{environ}}.yml","vars/main.yml"]
 
     - name: install module prerequisites
+      sudo: true
       apt: name={{ item }} state=latest
       with_items:
         - unzip
+        - python-httplib2
+        - python-boto
+        - python-mysqldb
 
   roles:
   - role: credstash
