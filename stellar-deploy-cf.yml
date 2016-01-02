@@ -51,7 +51,7 @@
     frontelb_zone_name: "stellarkeys.io"
     frontelb_dns_name: "invoice.stellarkeys.io"
     frontelb_stack_name: "simpleinvoice-elb{% if stack_num is defined %}-{{stack_num|default(1)}}{% endif %}"
-    frontelb_scheme: external
+    frontelb_scheme: internet-facing
     frontelb_listeners:
         - instancePort: 8080
           instanceProtocol: "https"
@@ -89,7 +89,7 @@
        size: '50'
        type: 'gp2'
        delete_on_term: true
-    keypair_name: "prod-pmpserver"
+    keypair_name: "prod-stellar"
     stack_wait_condition_timeout: 3600
     ansible_playbooks: deploy.yml
     ansible_extra_vars: |
