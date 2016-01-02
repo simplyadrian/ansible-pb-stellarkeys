@@ -59,12 +59,12 @@
           protocol: "https"
           allowed:
             - 0.0.0.0/0
-    tags:
-      'sps:product': "simpleinvoice"
-      'sps:env': "{{ environ }}"
-      'sps:unit': techops
-      'sps:owner': "simplyadrian@gmail.com"
-      'sps:hours_of_operation': "0000-2359"
+    sps_tags:
+      'stellar:product': "simpleinvoice"
+      'stellar:env': "{{ environ }}"
+      'stellar:unit': techops
+      'stellar:owner': "simplyadrian@gmail.com"
+      'stellar:hours_of_operation': "0000-2359"
       'Name': "stellar-server"
   roles:
   - frontelb
@@ -107,10 +107,10 @@
       environ="{{environ}}"
       playbook_version="{{playbook_version}}"
     stack_instance_tags:
-      "sps:owner": "simplyadrian@gmail.com"
-      "sps:unit": "techops"
-      "sps:hours_of_operation": "0000-2359"
-      "sps:product": "simpleinvoice"
+      "stellar:owner": "simplyadrian@gmail.com"
+      "stellar:unit": "techops"
+      "stellar:hours_of_operation": "0000-2359"
+      "stellar:product": "simpleinvoice"
       "Name": "simpleinvoice-server"
     instance_security_groups: "{{ standard_security_groups }}"
     instance_policies:
