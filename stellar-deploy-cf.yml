@@ -81,7 +81,7 @@
     load_balancer_stack: "simpleinvoice-elb"
     stack_name: "simple-server-{{ playbook_version|regex_replace('\\.', '-' ) }}{% if app_stack_num is defined %}-s{{ app_stack_num }}{% endif %}"
     group: app-1
-    ansible_archive: "https://stellar-build-deploy.s3.amazonaws.com/ansible/ansible-pb-stellar-{{ playbook_version }}.tgz"
+    ansible_archive: "https://stellar-build-deploy.s3.amazonaws.com/ansible/ansible-pb-stellarkeys-{{ playbook_version }}.tgz"
     image_type: "m3.medium"
     image_group: ubuntu14
     instance_volume:
