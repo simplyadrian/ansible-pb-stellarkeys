@@ -5,16 +5,13 @@
   vars:
     credstash_table: "credential-store"
     credstash_secrets: 
-      - table: "{{credstash_table}}"
-        secret: "simple_db.password"
+      - table: "{{ credstash_table }}"
+        secret: "{{ environ }}.simple_db.password"
         fact: "simple_aws_dbpass"
-        context: "env={{environ}}"
+        context: "env={{ environ }}"
   roles:
   - role: credstash
-    secrets: "{{credstash_secrets}}"
-
-  post_tasks:
-    - debug: msg="{{simple_aws_dbpass}}"
+    secrets: "{{ credstash_secrets }}"
 
 # rds stack
 - hosts: localhost
@@ -73,7 +70,7 @@
 - hosts: localhost
   gather_facts: false
   vars:
-    credstash_keys: ' { "dynamodb:LeadingKeys": ["simple.*", "simple_db.*"] }'
+    credstash_keys: ' { "dynamodb:LeadingKeys": ["{{ environ }}.simple*"] }'
                     #^ this space is significant, see https://github.com/ansible/ansible/issues/11963
     s3_prefix: "{{ environ }}/ansible"
     s3_arn: "arn:aws:s3:::stellar-build-deploy"
@@ -151,7 +148,7 @@
             resources:
               - "arn:aws:dynamodb:{{ region }}:{{ aws_account_number }}:table/{{ regions[region].vpc_environments[environ].credstash_table }}"
             condition:
-              "ForAllValues:StringLike": "{{credstash_keys}}"
+              "ForAllValues:StringLike": "{{ credstash_keys }}"
 
   pre_tasks:
     - cloudformation_lookup:
