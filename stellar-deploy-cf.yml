@@ -81,7 +81,7 @@
     load_balancer_stack: "simpleinvoice-elb"
     stack_name: "simple-server-{{ playbook_version|regex_replace('\\.', '-' ) }}{% if app_stack_num is defined %}-s{{ app_stack_num }}{% endif %}"
     group: app-1
-    ansible_archive: "https://stellar-build-deploy.s3.amazonaws.com/ansible/ansible-pb-stellarkeys-{{ playbook_version }}.tgz"
+    ansible_archive: "https://stellar-build-deploy.s3.amazonaws.com/{{ s3_prefix }}/ansible-pb-stellarkeys-{{ playbook_version }}.tgz"
     image_type: "m3.medium"
     image_group: ubuntu14
     instance_volume:
@@ -96,7 +96,7 @@
       ---
       playbook_version: "{{ playbook_version }}"
       environ: "{{ environ }}"
-      settings_secret_version: "{{ lookup('env', 'PMP_SECRET_VERSION') }}"
+      settings_secret_version: "{{ lookup('env', 'STELLAR_SECRET_VERSION') }}"
       simpleinvoice_local_install: false
       simpleinvoice_aws_dbhost: "{{ mysqlrds_stack.outputs.Endpoint }}"
       simpleinvoice_aws_dbport: "{{ mysqlrds_stack.outputs.Port }}"
