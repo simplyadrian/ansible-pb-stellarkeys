@@ -30,4 +30,4 @@
     command: tar -cvzf ../{{ github_repo }}-{{ artifact_version }}.tgz . chdir=./build/bundle creates=../{{ github_repo }}-{{ artifact_version }}.tgz
 
   - name: upload the artifact to s3 ; versioning on we dont give af 
-    s3: mode=put bucket=stellar-build-deploy object=ansible/{{ github_repo }}-{{ artifact_version }}.tgz src=./build/{{ github_repo }}-{{ artifact_version }}.tgz
+    s3: mode=put bucket=stellar-build-deploy object={{ environ }}/ansible/{{ github_repo }}-{{ artifact_version }}.tgz src=./build/{{ github_repo }}-{{ artifact_version }}.tgz

@@ -75,7 +75,7 @@
   vars:
     credstash_keys: ' { "dynamodb:LeadingKeys": ["simple.*", "{simple_db.*"] }'
                     #^ this space is significant, see https://github.com/ansible/ansible/issues/11963
-    s3_prefix: "{{environ}}/simple"
+    s3_prefix: "{{ environ }}/ansible"
     s3_arn: "arn:aws:s3:::stellar-build-deploy"
     playbook_version: "{{ lookup('env','STELLAR_PB_VERSION') }}"
     load_balancer_stack: "simpleinvoice-elb"
