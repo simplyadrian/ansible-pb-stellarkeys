@@ -11,7 +11,8 @@ regions:
   us-east-1:
     cfn_s3_template_bucket: stellar-cloudformation-templates
     aws_amis:
-      ubuntu14: ami-d05e75b8 
+      ubuntu14_default: ami-d05e75b8
+      ubuntu14: ami-3fffdd55
     vpc: vpc-927ea1f6
     region: us-east-1
     vpc_environment_names:

@@ -103,7 +103,7 @@
     ansible_inventory: |
       [simpleinvoiceserver]
       localhost ansible_connection=local
-      [pmpserver:vars]
+      [simpleinvoiceserver:vars]
       environ="{{environ}}"
       playbook_version="{{playbook_version}}"
     stack_instance_tags:
