@@ -95,6 +95,8 @@
       playbook_version: "{{ playbook_version }}"
       environ: "{{ environ }}"
       simpleinvoice_local_install: false
+      simpleinvoice_dbhost: "{{ mysqlrds_stack.outputs.Endpoint }}"
+      simpleinvoice_dbport: "{{ mysqlrds_stack.outputs.Port }}"
     ansible_inventory: |
       [simpleinvoiceserver]
       localhost ansible_connection=local
