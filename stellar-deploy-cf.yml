@@ -48,7 +48,7 @@
     frontelb_zone_name: "stellarkeys.io"
     frontelb_dns_name: "invoice.stellarkeys.io"
     frontelb_stack_name: "simpleinvoice-elb{% if stack_num is defined %}-{{stack_num|default(1)}}{% endif %}"
-    frontelb_scheme: internet-facing
+    frontelb_scheme: internal
     frontelb_listeners:
         - instancePort: 8080
           instanceProtocol: "http"
