@@ -40,6 +40,10 @@
           "stellar:owner": "simplyadrian@gmail.com"
           "stellar:hours_of_operation": "0000-2359"
 
+  pre_tasks:
+    - include_vars: "{{ item }}"
+      with_first_found: ["vars/{{environ}}.yml","vars/main.yml"]
+
 # long lived load balancer stack
 - hosts: localhost
   gather_facts: false
