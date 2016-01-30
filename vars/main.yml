@@ -15,7 +15,7 @@ credstash_secrets:
     fact: "simple_aws_dbpass"
     context: "env={{ environ }}"
   - table: "{{ credstash_table }}"
-    secret: "{{ enviorn }}.simple_email.username"
+    secret: "{{ environ }}.simple_email.username"
     fact: "simple_email_user"
     context: "env={{ environ }}"
   - table: "{{ credstash_table }}"
