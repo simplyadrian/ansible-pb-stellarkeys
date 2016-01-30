@@ -51,7 +51,7 @@
     frontelb_scheme: internet-facing
     frontelb_listeners:
         - instancePort: 8080
-          instanceProtocol: "https"
+          instanceProtocol: "http"
           port: 443
           protocol: "https"
           allowed:
@@ -94,10 +94,7 @@
       ---
       playbook_version: "{{ playbook_version }}"
       environ: "{{ environ }}"
-      settings_secret_version: "{{ lookup('env', 'STELLAR_SECRET_VERSION') }}"
       simpleinvoice_local_install: false
-      simpleinvoice_aws_dbhost: "{{ mysqlrds_stack.outputs.Endpoint }}"
-      simpleinvoice_aws_dbport: "{{ mysqlrds_stack.outputs.Port }}"
     ansible_inventory: |
       [simpleinvoiceserver]
       localhost ansible_connection=local
@@ -155,9 +152,9 @@
         stack: "simpleinvoice-{{ target_counter }}-mysql-rds-stack"
       register: mysqlrds_stack
     - set_fact:
-        simpleinvoice_aws_dbhost:
+        simpleinvoice_dbhost:
           - "{{ mysqlrds_stack.outputs.Endpoint }}"
-        simpleinvoice_aws_dbport:
+        simpleinvoice_dbport:
           - "{{ mysqlrds_stack.outputs.Port }}"
         instance_security_groups:
           - "{{ standard_security_groups | join(' ') }}"

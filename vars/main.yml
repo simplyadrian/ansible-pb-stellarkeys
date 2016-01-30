@@ -1,6 +1,8 @@
 ---
 # vars for ansible-pb-stellar
 simpleinvoice_local_install: false
+simple_email_host: "smtp.office365.com"
+simple_email_port: 587
 
 credstash_table: "credential-store"
 credstash_secrets:
@@ -12,11 +14,19 @@ credstash_secrets:
     secret: "{{ environ }}.simple_db.password"
     fact: "simple_aws_dbpass"
     context: "env={{ environ }}"
+  - table: "{{ credstash_table }}"
+    secret: "{{ enviorn }}.simple_email.username"
+    fact: "simple_email_user"
+    context: "env={{ environ }}"
+  - table: "{{ credstash_table }}"
+    secret: "{{ environ }}.simple_email.password"
+    fact: "simple_email_pass"
+    context: "env={{ environ }}"
 
 apache_listen_port: 8080
 apache_remove_default_vhost: true
 apache_vhosts:
-  - servername: "www.stellarinvoices.com"
+  - servername: "invoice.stellarkeys.io"
     serveralias: "stellarinvoices"
     serveradmin: "simplyadrian@gmail.com"
     documentroot: "/var/www/html"
